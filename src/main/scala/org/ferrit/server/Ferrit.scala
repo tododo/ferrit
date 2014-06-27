@@ -11,7 +11,7 @@ import org.ferrit.core.crawler.CrawlerManager
 import org.ferrit.core.http.{HttpClient, HttpClientConfig, NingAsyncHttpClient}
 import org.ferrit.core.robot.{DefaultRobotRulesCache, RobotRulesCacheActor}
 import org.ferrit.dao.DAOFactory
-import org.ferrit.dao.cassandra.{CassandraPersistenceManager, CassandraConfig}
+import org.ferrit.dao.cassandra.{CassandraDAOFactory, CassandraPersistenceManager, CassandraConfig}
 
 /**
  * The service bootstrap class.
@@ -64,7 +64,7 @@ class Ferrit extends Actor {
         val httpConfig = HttpClientConfig()
         val httpClient = new NingAsyncHttpClient(httpConfig)
         
-        val daoFactory: DAOFactory = new DAOFactory(
+        val daoFactory: DAOFactory = new CassandraDAOFactory(
           persistenceContext.getColumnTTL(config),
           persistenceContext.session
         )
