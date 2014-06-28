@@ -12,7 +12,7 @@ class DefaultStopRule extends StopRule {
    * otherwise a crawler with only 1 seed and a request fail
    * on the second page will abort too early.
    */
-  val MinFailCount = 5
+  val MinFailCount = 10
 
   
   override def ask(
