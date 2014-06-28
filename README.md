@@ -198,8 +198,8 @@ Store a new crawler configuration, the request body should be a JSON crawl confi
 
 Properties:
 
-| Property | What it Does |
-| -------- | ------------ |
+| Property | Behaviour |
+| -------- | --------- |
 | crawlerName | the display name for the crawler as would be shown in a UI. |
 | seeds | a string array, each being a starting URI to hint where the crawl should start. |
 | userAgent | a string that is included in the User-agent header sent with each fetch request. Is a mandatory field and required for crawl politeness. |
@@ -224,20 +224,37 @@ Deletes an existing crawler configuration.
 Fetches and job history associated with the crawler will be removed automatically by Cassandra after the time to live has expired (set in application.conf).
 
 
-#### POST /crawlers/config_test
+#### POST /crawl-config-test
 
-Tests a crawler configuration and one or more additional URIs. In practice this is just testing the UriFilter assigned to the crawler configuration.
+Tests can optionally be stored with crawler configurations to help ensure changes to the seeds and rules over time match the expected boundaries of the crawl.
+Without tests you cannot be sure that UriFilter rules will behave as expected.
+When you use this to try out the tests no permanent changes are made to a crawler configuration.
+Bear in mind also that the tests are still run automatically prior to POST/PUT /crawlers request so it is not necessary to call this prior to storing configuration changes.
 
-    {
-        config: {
-            "id": "new",
-            "crawlerName": "Name of the Crawler", 
-            "seeds": [
-                "http://site.net"
-            ],
-            ... etc ...
-            },
-        uris: [uri1, uri2 ...]
+Given the following example, the test "should reject: http://www.website.com/account/register/" will be applied to the seeds and UriFilter rules.
+If the test passes a 200 response is returned. If it fails a 400 response is returned with a JSON message explaining which seed and/or rule(s) failed the test.
+
+    { 
+        "id": "none", 
+        "seeds": [
+            "http://www.website.com/"
+        ],
+        "uriFilter": { 
+            "filterClass": "org.ferrit.core.filter.PriorityRejectUriFilter", 
+            "rules": [ 
+                "accept: http://www.website.com/", 
+                "reject: http://www.website.com(/account/register/)" ] 
+            }, 
+        "tests": [ 
+            "should reject: http://www.website.com/account/register/"
+        ], 
+        "crawlerName": "Some Website",
+        "crawlDelayMillis": 100, 
+        "crawlTimeoutMillis": 600000, 
+        "maxDepth": 3, 
+        "maxFetches": 10000, 
+        "maxQueueSize": 20000, 
+        "maxRequestFails": 0.2 
     }
 
 

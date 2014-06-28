@@ -7,7 +7,7 @@ import akka.io.IO
 import spray.can.Http
 import spray.util._ // for PimpedFuture.await
 import scala.concurrent.duration._
-import org.ferrit.core.crawler.CrawlerManager
+import org.ferrit.core.crawler.{CrawlerManager, CrawlLog}
 import org.ferrit.core.http.{HttpClient, HttpClientConfig, NingAsyncHttpClient}
 import org.ferrit.core.robot.{DefaultRobotRulesCache, RobotRulesCacheActor}
 import org.ferrit.dao.DAOFactory
@@ -82,14 +82,17 @@ class Ferrit extends Actor {
             robotRulesCache), 
             "crawler-manager")
         
-        val home = s"http://$host:$port"
+        val logger = context.actorOf(Props[CrawlLog])
 
         val restService = context.actorOf(Props(
             classOf[RestService], 
             self,
             daoFactory,
-            crawlerManager), 
+            crawlerManager, 
+            logger), 
             "rest-service")
+
+        val home = s"http://$host:$port"
 
         IO(Http) ! Http.Bind(restService, host, port = port)
 
