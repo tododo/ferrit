@@ -151,26 +151,29 @@ After you POST this configuration, copy the crawlerId property returned in the J
 (2) Run a new crawl job using this new crawler configuration:
 
     curl -XPOST "localhost:6464/job-processes" --header "Content-Type: application/json" -d '{
-        "id": "#ID-OF-NEW-CRAWLER#"
+        "id": "put-new-crawler-ID-here"
     }'
 
 
 The job should start and finish after about a minute because only 10 resources are fetched.
-Check the Ferrit console log for progress ...
+Check the console log for progress ...
 
 
 
 API Documentation
 -----------------
 
-## Crawlers
+For all API calls, the request and response entities (aka payload or body) are in JSON format.
+
+
+### Crawlers
 
 | Method | Endpoint | Description |
 | ------ | -------- | ----------- |
-| GET    | /crawlers | Returns details of stored crawler configurations. |
-| POST   | /crawlers | Stores a new crawler configuration. |
-| PUT    | /crawlers/{crawlerId} | Updates an existing crawler configuration. |
-| DELETE | /crawlers/{crawlerId} | Deletes an existing crawler configuration. |
+| GET    | /crawlers | Returns an array of stored crawler configurations. |
+| POST   | /crawlers | Stores a new crawler configuration. See above for the JSON format. |
+| PUT    | /crawlers/{crawlerId} | Updates an existing crawler configuration. Same format as for POST. |
+| DELETE | /crawlers/{crawlerId} | Deletes an existing crawler configuration. <br/><br/> Other content associated with the crawler such as fetches and job history will be removed automatically after the time-to-live has expired (set in application.conf). |
 | GET    | /crawlers/{crawlerId} | Returns details of a stored crawler configuration. |
 | GET    | /crawlers/{crawlerId}/jobs | Returns an array of recent jobs that run or are running for a crawler. |
 | GET    | /crawlers/{crawlerId}/jobs/{jobId} | Returns details about a job. |
@@ -179,14 +182,30 @@ API Documentation
 | POST   | /crawl-config-test | Runs a test on a crawler configuration without storing changes. |
 
 
-#### POST /crawlers
+### Job Processes
 
-Store a new crawler configuration, the request body should be a JSON crawl config. See example above ...
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET    | /job-processes | Returns an array of all the running jobs known to the crawl manager. |
+| POST   | /job-processes | Starts a new crawl, the request body should be a JSON object with a crawler ID value. |
+| DELETE | /job-processes/{jobId} | Sends a stop request for the given running job. |
+| DELETE | /job-processes | Sends a stop request for all running crawl jobs. |
 
-Properties:
+
+### Crawl Jobs
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET    | /jobs    | Returns an array of crawl jobs. Defaults to returning jobs that ran today. Jobs are ordered most recent first. To fetch jobs for other days include the date query string parameter with the given date format, e.g. <br/><br/> /jobs?date=YYYY-MM-DD |
+
+
+## Crawler Properties
+
+These are the properties for a crawler and sent when issuing a request that requires the entity to be a crawler configuration.
 
 | Property | Behaviour |
 | -------- | --------- |
+| id | the unique identifier. for new crawls set to "new", an identifier as added automatically. |
 | crawlerName | the display name for the crawler as would be shown in a UI. |
 | seeds | a string array, each being a starting URI to hint where the crawl should start. |
 | userAgent | a string that is included in the User-agent header sent with each fetch request. Is a mandatory field and required for crawl politeness. |
@@ -200,18 +219,7 @@ Properties:
 | tests | allows you to provide example URIs that should match or not match your URI filter rules. Means that you can change your URI filter rules without breaking the expected behaviour. |
 
 
-#### PUT /crawlers/{crawlerId}
-
-Updates an existing crawler configuration.
-
-
-#### DELETE /crawlers/{crawlerId}
-
-Deletes an existing crawler configuration.
-Fetches and job history associated with the crawler will be removed automatically after the time-to-live has expired (set in application.conf).
-
-
-#### POST /crawl-config-test
+## Crawler Configuration Testing
 
 Tests can optionally be stored with crawler configurations to help ensure changes to the seeds and rules over time match the expected boundaries of the crawl.
 Without tests you cannot be sure that UriFilter rules will behave as expected.
@@ -220,6 +228,8 @@ Bear in mind also that the tests are still run automatically prior to POST/PUT /
 
 Given the following example, the test "should reject: http://www.website.com/account/register/" will be applied to the seeds and UriFilter rules.
 If the test passes a 200 response is returned. If it fails a 400 response is returned with a JSON message explaining which seed and/or rule(s) failed the test.
+
+    POST /crawl-config-test
 
     { 
         "id": "none", 
@@ -244,29 +254,29 @@ If the test passes a 200 response is returned. If it fails a 400 response is ret
         "maxRequestFails": 0.2 
     }
 
+Response Codes and Errors
+-------------------------
 
-## Job Processes
+#### Response Codes
 
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET    | /job-processes | Returns an array of all the running jobs known to the crawl manager. |
-| POST   | /job-processes | Starts a new crawl, the request body should be a JSON object with a crawler ID value. |
-| DELETE | /job-processes/{jobId} | Sends a stop request for the given running job. |
-| DELETE | /job-processes | Sends a stop request for all running crawl jobs. |
+| Status           | When is this returned |
+| ---------------- | --------------------- |
+| 200 OK           | After a succesful GET request. |
+| 201 CREATED      | After a succesful POST operation that changes state such as creating a crawler. |
+| 204 NO CONTENT   | After a succesful DELETE operation, such as deleting a crawler. |
+| 400 BAD REQUEST  | A parameter could not be parsed such as a date value. |
+| 404 NOT FOUND    | A resource was not found such as crawler or job etc. |
+| 500 SERVER ERROR | Hopefully you'll never see this one! |
 
 
-## Crawl Jobs
+#### Error Messages
 
+Whenever a bad request or error occurs (those in the 400 and 500 range) a JSON message is returned:
 
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET    | /jobs    | Returns an array of crawl jobs. Defaults to returning jobs that ran today. Jobs are ordered most recent first. |
-
-#### GET /jobs
-
-To fetch jobs for other days include the date query string parameter with the given date format, e.g.
-
-    /jobs?date=YYYY-MM-DD
+    {
+        "statusCode": 404,
+        "message": "No crawler found with identifier [non-existent-crawler-id]"
+    }
 
 
 More About Persistence
