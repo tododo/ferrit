@@ -213,7 +213,7 @@ trait RestServiceRoutes extends HttpService {
         }
       }
     } ~
-    path("job_processes") {
+    path("job-processes") {
       post {
         entity(as[Id]) { id =>
           val crawlerId = id.id
@@ -248,7 +248,7 @@ trait RestServiceRoutes extends HttpService {
       }
     
     } ~
-    path("job_processes" / Segment) { jobId =>
+    path("job-processes" / Segment) { jobId =>
       delete {
         complete {
           crawlerManager

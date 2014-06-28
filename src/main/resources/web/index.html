@@ -144,17 +144,17 @@
       </tr>
       <tr>
         <td><span class="label label-primary">GET</span></td>
-        <td>/job_processes</td>
+        <td>/job-processes</td>
         <td>Returns an array of all the running jobs known to the crawl manager</td>
       </tr>
       <tr>
         <td><span class="label label-success">POST</span></td>
-        <td>/job_processes</td>
+        <td>/job-processes</td>
         <td>
             <p>Starts a new crawl, the request body should be a JSON object with a crawler ID value.</p>
             <p>Curl example:</p>
             <code>
-            curl -X POST "http://localhost:6464/job_processes" --header "Content-Type: application/json" -d '{
+            curl -X POST "http://localhost:6464/job-processes" --header "Content-Type: application/json" -d '{
               "id": "#crawlerId#"
             }'
             </code>
@@ -162,12 +162,12 @@
       </tr>
       <tr>
         <td><span class="label label-danger">DELETE</span></td>
-        <td>/job_processes/{jobId}</td>
+        <td>/job-processes/{jobId}</td>
         <td>Sends a stop request for the given running job</td>
       </tr>
       <tr>
         <td><span class="label label-danger">DELETE</span></td>
-        <td>/job_processes</td>
+        <td>/job-processes</td>
         <td>Sends a stop request for all running crawl jobs</td>
       </tr>
     

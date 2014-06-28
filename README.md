@@ -150,7 +150,7 @@ After you POST this configuration, copy the crawlerId property returned in the J
 
 (2) Run a new crawl job using this new crawler configuration:
 
-    curl -XPOST "localhost:6464/job_processes" --header "Content-Type: application/json" -d '{
+    curl -XPOST "localhost:6464/job-processes" --header "Content-Type: application/json" -d '{
         "id": "#ID-OF-NEW-CRAWLER#"
     }'
 
@@ -249,10 +249,10 @@ If the test passes a 200 response is returned. If it fails a 400 response is ret
 
 | Method | Endpoint | Description |
 | ------ | -------- | ----------- |
-| GET    | /job_processes | Returns an array of all the running jobs known to the crawl manager. |
-| POST   | /job_processes | Starts a new crawl, the request body should be a JSON object with a crawler ID value. |
-| DELETE | /job_processes/{jobId} | Sends a stop request for the given running job. |
-| DELETE | /job_processes | Sends a stop request for all running crawl jobs. |
+| GET    | /job-processes | Returns an array of all the running jobs known to the crawl manager. |
+| POST   | /job-processes | Starts a new crawl, the request body should be a JSON object with a crawler ID value. |
+| DELETE | /job-processes/{jobId} | Sends a stop request for the given running job. |
+| DELETE | /job-processes | Sends a stop request for all running crawl jobs. |
 
 
 ## Crawl Jobs
