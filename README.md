@@ -165,31 +165,18 @@ API Documentation
 
 ## Crawlers
 
-#### GET /crawlers
-
-Returns details of stored crawler configurations. Todo: add search options and paging.
-
-#### GET /crawlers/{crawlerId}
-
-Returns details of a stored crawler configuration.
-
-#### GET /crawlers/{crawlerId}/jobs
-
-Returns an array of recent jobs that run or are running for a crawler.
-
-#### GET /crawlers/{crawlerId}/jobs/{jobId}
-
-Returns details about a job.
-
-
-#### GET /crawlers/{crawlerId}/jobs/{jobId}/assets
-
-Retrieve asset metadata collected by a crawler during the given job.
-
-
-#### GET /crawlers/{crawlerId}/jobs/{jobId}/fetches
-
-Retrieve details about fetches for a particular job.
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET    | /crawlers | Returns details of stored crawler configurations. |
+| POST   | /crawlers | Stores a new crawler configuration. |
+| PUT    | /crawlers/{crawlerId} | Updates an existing crawler configuration. |
+| DELETE | /crawlers/{crawlerId} | Deletes an existing crawler configuration. |
+| GET    | /crawlers/{crawlerId} | Returns details of a stored crawler configuration. |
+| GET    | /crawlers/{crawlerId}/jobs | Returns an array of recent jobs that run or are running for a crawler. |
+| GET    | /crawlers/{crawlerId}/jobs/{jobId} | Returns details about a job. |
+| GET    | /crawlers/{crawlerId}/jobs/{jobId}/assets | Retrieve asset metadata collected by a crawler during the given job. |
+| GET    | /crawlers/{crawlerId}/jobs/{jobId}/fetches | Retrieve details about fetches for a particular job. |
+| POST   | /crawl-config-test | Runs a test on a crawler configuration without storing changes. |
 
 
 #### POST /crawlers
@@ -215,13 +202,13 @@ Properties:
 
 #### PUT /crawlers/{crawlerId}
 
-Updates an existing crawler configuration, the request entity should be a JSON crawl configuration.
+Updates an existing crawler configuration.
 
 
 #### DELETE /crawlers/{crawlerId}
 
 Deletes an existing crawler configuration.
-Fetches and job history associated with the crawler will be removed automatically by Cassandra after the time to live has expired (set in application.conf).
+Fetches and job history associated with the crawler will be removed automatically after the time-to-live has expired (set in application.conf).
 
 
 #### POST /crawl-config-test
@@ -260,31 +247,22 @@ If the test passes a 200 response is returned. If it fails a 400 response is ret
 
 ## Job Processes
 
-#### GET /job_processes
-
-Returns an array of all the running jobs known to the crawl manager.
-
-
-#### POST /job_processes
-
-Starts a new crawl, the request body should be a JSON object with a crawler ID value. See example above ...
-
-
-#### DELETE /job_processes/{jobId}
-
-Sends a stop request for the given running job.
-
-#### DELETE /job_processes
-    
-Sends a stop request for all running crawl jobs.
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET    | /job_processes | Returns an array of all the running jobs known to the crawl manager. |
+| POST   | /job_processes | Starts a new crawl, the request body should be a JSON object with a crawler ID value. |
+| DELETE | /job_processes/{jobId} | Sends a stop request for the given running job. |
+| DELETE | /job_processes | Sends a stop request for all running crawl jobs. |
 
 
 ## Crawl Jobs
 
 
-#### GET /jobs
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| GET    | /jobs    | Returns an array of crawl jobs. Defaults to returning jobs that ran today. Jobs are ordered most recent first. |
 
-Returns an array of crawl jobs. Defaults to returning jobs that ran today. Jobs are ordered most recent first.
+#### GET /jobs
 
 To fetch jobs for other days include the date query string parameter with the given date format, e.g.
 
