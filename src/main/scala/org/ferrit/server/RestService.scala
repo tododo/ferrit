@@ -85,12 +85,6 @@ trait RestServiceRoutes extends HttpService {
     pathSingleSlash {
       getFromResource(s"$webDirectory/index.html")
     } ~
-    pathPrefix("css") {
-      getFromResourceDirectory(s"$webDirectory/css")  
-    } ~
-    pathPrefix("js") {
-      getFromResourceDirectory(s"$webDirectory/js")
-    } ~
     path("crawlers" / Segment / "jobs" / Segment / "fetches") { (crawlerId, jobId) =>
       get {
         crawlerDao.find(crawlerId) match {
