@@ -17,7 +17,7 @@ import org.ferrit.core.robot.{RobotRulesCache, DefaultRobotRulesCache, RobotRule
 import org.ferrit.core.test.{LinkedListHttpClient, FakeHttpClient}
 import org.ferrit.core.test.FakeHttpClient.HtmlResponse
 import org.ferrit.core.uri.CrawlUri
-import org.ferrit.core.util.Counters
+import org.ferrit.core.util.{Counters, UniqueId}
 
 
 class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
@@ -60,7 +60,7 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
   }
 
   def makeConfig(uri: String) = CrawlConfig(
-      id = java.util.UUID.randomUUID().toString(),
+      id = UniqueId.next,
       userAgent = None,
       crawlerName = "Test Crawler " + scala.util.Random.nextInt(10000),
       seeds = Seq(CrawlUri(uri)),
@@ -293,7 +293,7 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
       val p = Promise[Boolean]()
 
       val config = CrawlConfig(
-        id = java.util.UUID.randomUUID().toString(),
+        id = UniqueId.next,
         userAgent = None,
         crawlerName = "Test Crawler " + scala.util.Random.nextInt(10000),
         seeds = Seq(CrawlUri(site)),

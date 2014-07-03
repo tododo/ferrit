@@ -2,7 +2,7 @@ package org.ferrit.core.model
 
 import org.joda.time.DateTime
 import org.ferrit.core.crawler.CrawlConfig
-import org.ferrit.core.util.Media
+import org.ferrit.core.util.{UniqueId, Media}
 
 
 sealed case class CrawlJob(
@@ -33,7 +33,7 @@ object CrawlJob {
   def create(config: CrawlConfig, node: String) = CrawlJob(
     crawlerId = config.id,
     crawlerName = config.crawlerName,
-    jobId = java.util.UUID.randomUUID().toString(),
+    jobId = UniqueId.next,
     node = node,
     partitionDate = new DateTime().withTimeAtStartOfDay,
     snapshotDate = new DateTime,

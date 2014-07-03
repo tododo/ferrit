@@ -18,7 +18,7 @@ import org.ferrit.core.parser.MultiParser
 import org.ferrit.core.robot.{RobotRulesCache, RobotRulesCacheActor}
 import org.ferrit.core.uri.{CrawlUri, UriReader, InMemoryFrontier}
 import org.ferrit.core.uri.{UriCache, InMemoryUriCache}
-import org.ferrit.core.util.{Counters, MediaCounters, Media}
+import org.ferrit.core.util.{Counters, MediaCounters, Media, UniqueId}
 import org.ferrit.core.test.FakeHttpClient._
 import org.ferrit.core.test.{ParrotHttpClient, LinkedListHttpClient}
 import org.ferrit.core.test.{MockRobotRulesCache, PartResponse}
@@ -102,7 +102,7 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
    * Generic config used by all tests, customisable by making a copy
    */
   def makeConfig(uri: String) = CrawlConfig(
-      id = java.util.UUID.randomUUID().toString(),
+      id = UniqueId.next,
       userAgent = Some("Test Agent"),
       crawlerName = "Test Crawler " + scala.util.Random.nextInt(10000),
       seeds = seedsFor(uri),
