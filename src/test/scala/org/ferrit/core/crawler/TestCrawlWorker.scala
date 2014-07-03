@@ -635,7 +635,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     //           \_page3 (404)
     //           |_page4 (404)
     //           |_page5 (404)
-    //           |_page6 (404)
+    //           ...
+    //           |_page10 (404)
     //
 
     val index = "http://site.net"
@@ -651,7 +652,11 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
                 """<a href="page3">link</a>
                    <a href="page4">link</a>
                    <a href="page5">link</a>
-                   <a href="page6">link</a>""")))
+                   <a href="page6">link</a>
+                   <a href="page7">link</a>
+                   <a href="page8">link</a>
+                   <a href="page9">link</a>
+                   <a href="page10">link</a>""")))
 
     val config = makeConfig(index)
 
@@ -673,9 +678,9 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     fishForMessage(1.second) {
       case Stopped(TooManyFetchesFailed, job) => 
         job.fetchCounters should equal (Map(
-          FetchAttempts -> 6,
+          FetchAttempts -> 10,
           FetchSucceeds -> 3,
-          FetchFails -> 3 // approx 50% failed
+          FetchFails -> 7
         ))
         true
       case _ => false
