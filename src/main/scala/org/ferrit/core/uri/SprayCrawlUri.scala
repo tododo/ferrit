@@ -1,12 +1,13 @@
 package org.ferrit.core.uri
 
+import java.net.URLEncoder
+
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
-import spray.http.{Uri, StringRendering}
+import spray.http.{StringRendering, Uri}
 import spray.http.Uri.Query
 import spray.http.Uri.ParsingMode
 import spray.util.UTF8
-import java.net.URI
 import SprayUriReader._
 
 
@@ -119,10 +120,13 @@ object SprayUriReader {
    */
   def makeUri(uri: String):Uri = Uri(clean(uri), ParsingMode.Relaxed)
 
-  private def clean(uri: String):String = 
-    uri
-      .replaceAll(" ", "%20") // Spray blows up with spaces or newline characters
-      .replaceAll("\r", "")   // Remove 3 kinds of newline: \r\n, \r, \n
+  private def clean(uri: String):String = {
+    val url = uri.replaceAll(" ", "%20") // Spray blows up with spaces or newline characters
+      .replaceAll("\r", "") // Remove 3 kinds of newline: \r\n, \r, \n
       .replaceAll("\n", "")
-
+    if(url.contains('?'))
+      url.substring(0, url.indexOf('?')) + '?' + url.substring(url.indexOf('?')+1).split('&').map(e => e.split('=').map(p => URLEncoder.encode(p)).mkString("=")).mkString("&")
+    else
+      url
+  }
 }

@@ -3,24 +3,25 @@ package org.ferrit.server
 import akka.actor.{Actor, ActorRef, Props}
 import akka.testkit.TestActorRef
 import org.joda.time.DateTime
-import org.scalatest.FlatSpec;
+import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.matchers.ShouldMatchers
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json._
-import scala.util.{Success, Failure}
+
+import scala.util.{Failure, Success}
 import spray.testkit.ScalatestRouteTest
 import spray.http._
 import spray.http.ContentTypes.`application/json`
-import org.ferrit.core.crawler.{CrawlerManager, CrawlLog, CrawlConfig}
-import org.ferrit.core.crawler.{CrawlerManager, CrawlLog}
-import org.ferrit.core.crawler.CrawlerManager.{JobsQuery, JobsInfo, JobNotFound, StopJob, StopAccepted, StopAllJobs}
+import org.ferrit.core.crawler.{CrawlConfig, CrawlLog, CrawlerManager}
+import org.ferrit.core.crawler.{CrawlLog, CrawlerManager}
+import org.ferrit.core.crawler.CrawlerManager.{JobNotFound, JobsInfo, JobsQuery, StopAccepted, StopAllJobs, StopJob}
 import org.ferrit.core.crawler.CrawlerManager.StartJob
 import org.ferrit.core.filter.PriorityRejectUriFilter
 import org.ferrit.core.filter.PriorityRejectUriFilter.Accept
 import org.ferrit.core.json.PlayJsonImplicits._
 import org.ferrit.server.json.PlayJsonImplicits._
-import org.ferrit.core.model.{Crawler, CrawlJob, DocumentMetaData, FetchLogEntry}
-import org.ferrit.dao.{CrawlerDAO, CrawlJobDAO, FetchLogEntryDAO, DocumentMetaDataDAO, DocumentDAO}
+import org.ferrit.core.model.{CrawlJob, Crawler, DocumentMetaData, FetchLogEntry}
+import org.ferrit.dao.{CrawlJobDAO, CrawlerDAO, DocumentDAO, DocumentMetaDataDAO, FetchLogEntryDAO}
 import org.ferrit.dao.{DAOFactory, Journal}
 import org.ferrit.core.uri.CrawlUri
 import org.ferrit.core.util.Media
@@ -28,7 +29,7 @@ import org.ferrit.server.json.{ErrorMessage, Id, Message}
 import org.ferrit.server.RestServiceRoutes.StopJobAcceptedMsg
 
 
-class TestRestService extends FlatSpec with MockFactory with ScalatestRouteTest with ShouldMatchers {
+class TestResService extends FlatSpec with MockFactory with ScalatestRouteTest with ShouldMatchers {
   
   // See: Spray's RequestBuildingExamplesSpec for more ...
   

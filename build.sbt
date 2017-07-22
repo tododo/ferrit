@@ -25,19 +25,19 @@ resolvers += "Spray Repostory" at "http://repo.spray.io"
 
 libraryDependencies ++= {
   val akkaVersion = "2.3.3"
-  val sprayVersion = "1.3.1"
+  val sprayVersion = "1.3.3"
   Seq(
     "com.typesafe.akka" %% "akka-actor" % akkaVersion,
     "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
     "com.typesafe.akka" %% "akka-testkit" % akkaVersion,
     "ch.qos.logback" % "logback-classic" % "1.0.9",
-    "org.scalatest" %% "scalatest" % "1.9.1" % "test",
-    "org.scalamock" %% "scalamock-scalatest-support" % "3.0.1" % "test",
-    "org.mockito" % "mockito-all" % "1.9.0" % "test",
-    "io.spray" % "spray-testkit" % sprayVersion % "test",
-    "io.spray" % "spray-can" % sprayVersion,
-    "io.spray" % "spray-client" % sprayVersion,
-    "io.spray" % "spray-routing" % sprayVersion,
+    "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+    "org.scalamock" % "scalamock-scalatest-support_2.10" % "3.2.2" % "test",
+    "org.mockito" % "mockito-core" % "2.8.47" % "test",
+    "io.spray" %% "spray-testkit" % sprayVersion % "test",
+    "io.spray" %% "spray-can" % sprayVersion,
+    "io.spray" %% "spray-client" % sprayVersion,
+    "io.spray" %% "spray-routing" % sprayVersion,
     "com.typesafe.play" %% "play-json" % "2.2.0",
     "com.ning" % "async-http-client" % "1.7.20",
     "org.jsoup" % "jsoup" % "1.7.3",

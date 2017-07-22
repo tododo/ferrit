@@ -369,4 +369,10 @@ class TestCrawlUri extends FlatSpec with ShouldMatchers {
     val uri1 = CrawlUri("http://site.net")
   }
 
+  it should "support non-UTF8 encoding in the URL" in {
+    val baseUrl = "https://www.decathlon.com.cn/zh/browse/c0-kids/c1-tops/c2-underwaists-render-clothing-tights/_/N-u8hq5v"
+    val relativeUrl = "/zh/p/freshwarm-children-s-ski-base-layer-black/_/R-p-141819?mc=8371834&c=黑色"
+    val uriChinese = CrawlUri(CrawlUri(baseUrl), relativeUrl)
+  }
+
 }
