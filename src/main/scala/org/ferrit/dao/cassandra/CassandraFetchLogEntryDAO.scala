@@ -1,9 +1,6 @@
 package org.ferrit.dao.cassandra
 
-import java.util.Date
-import org.joda.time.DateTime
-import com.datastax.driver.core.{Session, PreparedStatement, BoundStatement, BatchStatement}
-import com.datastax.driver.core.{Row, ResultSet}
+import com.datastax.driver.core._
 import org.ferrit.core.model.FetchLogEntry
 import org.ferrit.dao.FetchLogEntryDAO
 import org.ferrit.dao.cassandra.CassandraDAO._
@@ -51,7 +48,8 @@ class CassandraFetchLogEntryDAO(ttl: CassandraColumnTTL)(implicit session: Sessi
     FetchLogEntry(
       row.getString("crawler_id"),
       row.getString("job_id"),
-      row.getDate("log_time"),
+      row.getTimestamp("log_time"),
+//      LocalDateTime.ofInstant(row.getTimestamp("log_time").toInstant, ZoneId.systemDefault()),
       row.getString("uri"),
       row.getInt("uri_depth"),
       row.getInt("status_code"),
@@ -71,7 +69,8 @@ class CassandraFetchLogEntryDAO(ttl: CassandraColumnTTL)(implicit session: Sessi
     bs.bind()
       .setString("crawler_id", fle.crawlerId)
       .setString("job_id", fle.jobId)
-      .setDate("log_time", fle.logTime)
+      .setTimestamp("log_time", fle.logTime)
+//      .setTimestamp("log_time", Date.from(fle.logTime.atZone(ZoneId.systemDefault()).toInstant))
       .setString("uri", fle.uri)
       .setInt("uri_depth", fle.uriDepth)
       .setInt("status_code", fle.statusCode)

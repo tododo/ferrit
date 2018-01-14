@@ -1,11 +1,9 @@
 package org.ferrit.core.robot
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
-import org.ferrit.core.robot.RobotRulesParser.LineParser
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestRobotRulesParser extends FlatSpec with ShouldMatchers {
+class TestRobotRulesParser extends FlatSpec with Matchers {
   
     behavior of "RobotRulesParser"
 

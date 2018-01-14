@@ -1,10 +1,12 @@
 package org.ferrit.dao
 
-import org.joda.time.DateTime
+import java.time.LocalDate
+
 import org.ferrit.core.model._
 
+
 trait CrawlerDAO {
-  
+
   def insert(crawler: Crawler): Unit
   def delete(crawlerId: String): Unit
   def find(crawlerId: String): Option[Crawler]
@@ -20,7 +22,7 @@ trait DocumentDAO {
 }
 
 trait DocumentMetaDataDAO {
-  
+
   def insert(docMeta: DocumentMetaData):Unit
   def find(jobId: String, uri: String):Option[DocumentMetaData]
   def find(jobId: String):Seq[DocumentMetaData]
@@ -28,17 +30,17 @@ trait DocumentMetaDataDAO {
 }
 
 trait CrawlJobDAO {
-  
+
   def insertByCrawler(jobs: Seq[CrawlJob]):Unit
   def insertByDate(jobs: Seq[CrawlJob]):Unit
   def find(crawlerId: String, jobId: String):Option[CrawlJob]
   def find(crawlerId: String):Seq[CrawlJob]
-  def find(partitionDate: DateTime):Seq[CrawlJob]
+  def find(partitionDate: LocalDate):Seq[CrawlJob]
 
 }
 
 trait FetchLogEntryDAO {
-  
+
   def insert(fle: FetchLogEntry):Unit
   def insert(entries: Seq[FetchLogEntry]):Unit
   def find(jobId: String):Seq[FetchLogEntry]

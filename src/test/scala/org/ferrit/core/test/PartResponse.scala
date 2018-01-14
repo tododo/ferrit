@@ -1,6 +1,6 @@
 package org.ferrit.core.test
 
-import org.ferrit.core.http.{Request, Response, DefaultResponse, Stats}
+import org.ferrit.core.http.{DefaultResponse, Request, Response, Stats}
 
 /**
  * Utility used with FakeHttpClient, a fake response minus the Request param 

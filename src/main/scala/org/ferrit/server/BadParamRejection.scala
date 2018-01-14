@@ -1,5 +1,5 @@
 package org.ferrit.server
 
-import spray.routing.Rejection
+import akka.http.scaladsl.server.Rejection
 
 case class BadParamRejection(name: String, value: String) extends Rejection

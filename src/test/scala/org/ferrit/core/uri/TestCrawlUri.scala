@@ -1,8 +1,6 @@
 package org.ferrit.core.uri
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
-import spray.http.Uri
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
  * There are multiple issues with this code that still need resolving.
@@ -19,7 +17,7 @@ import spray.http.Uri
  * @see http://code.google.com/p/crawler4j/source/browse/src/test/java/edu/uci/ics/crawler4j/tests/URLCanonicalizerTest.java
  *
  */
-class TestCrawlUri extends FlatSpec with ShouldMatchers {
+class TestCrawlUri extends FlatSpec with Matchers {
   
   behavior of "CrawlUri"
 
@@ -49,8 +47,8 @@ class TestCrawlUri extends FlatSpec with ShouldMatchers {
   }
 
   it should "convert default ports to 0 (spray compatible)" in {
-    Uri("http://site.com:80").authority.port should equal (0)
-    Uri("ssh://site.com:22").authority.port should equal (0)
+    CrawlUri("http://site.com:80").crawlableUri should equal ("http://site.com")
+    CrawlUri("ssh://site.com:22").crawlableUri should equal ("ssh://site.com")
     CrawlUri("http://site.com").reader.schemeToPort should equal ("http://site.com")
     CrawlUri("http://site.com:80").reader.schemeToPort should equal ("http://site.com")
   }
@@ -370,9 +368,20 @@ class TestCrawlUri extends FlatSpec with ShouldMatchers {
   }
 
   it should "support non-UTF8 encoding in the URL" in {
-    val baseUrl = "https://www.decathlon.com.cn/zh/browse/c0-kids/c1-tops/c2-underwaists-render-clothing-tights/_/N-u8hq5v"
-    val relativeUrl = "/zh/p/freshwarm-children-s-ski-base-layer-black/_/R-p-141819?mc=8371834&c=黑色"
+    val baseUrl = "https://www.site.com/a/b/c"
+    val relativeUrl = "/a/b?c=黑色"
     val uriChinese = CrawlUri(CrawlUri(baseUrl), relativeUrl)
+    uriChinese should equal (
+      "https://www.site.com/a/b?c=%E9%BB%91%E8%89%B2"
+    )
+
+    val relativeUrl1 = "/a/b?c=%E9%BB%91%E8%89%B2"
+
+    val c = CrawlUri(CrawlUri(baseUrl), relativeUrl1)
+
+    c should equal (
+      "https://www.site.com/a/b?c=%E9%BB%91%E8%89%B2"
+    )
   }
 
 }

@@ -2,7 +2,6 @@ package org.ferrit.dao.cassandra
 
 import com.datastax.driver.core.Session
 import org.ferrit.dao.DAOFactory
-import org.ferrit.dao.cassandra._
 
 
 class CassandraDAOFactory(ttl: CassandraColumnTTL, session: Session) extends DAOFactory {

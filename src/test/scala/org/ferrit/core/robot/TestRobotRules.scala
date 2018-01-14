@@ -1,10 +1,9 @@
 package org.ferrit.core.robot
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestRobotRules extends FlatSpec with ShouldMatchers {
+class TestRobotRules extends FlatSpec with Matchers {
 
   behavior of "RobotRules"
   

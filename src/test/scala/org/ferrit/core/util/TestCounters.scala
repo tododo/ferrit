@@ -1,10 +1,9 @@
 package org.ferrit.core.util
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestCounters extends FlatSpec with ShouldMatchers {
+class TestCounters extends FlatSpec with Matchers {
 
   behavior of "TestCounters"
 

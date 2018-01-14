@@ -1,9 +1,9 @@
 package org.ferrit.core.crawler
 
+import org.ferrit.core.http.Response
+import org.ferrit.core.model.CrawlJob
 import org.ferrit.core.parser.ParserResult
 import org.ferrit.core.uri.{CrawlUri, FetchJob}
-import org.ferrit.core.model.CrawlJob
-import org.ferrit.core.http.Response
 
 
 object FetchMessages {

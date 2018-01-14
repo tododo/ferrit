@@ -1,24 +1,23 @@
 package org.ferrit.core.crawler
 
-import akka.actor.{Actor, Props, ActorRef}
+import java.time.{Duration, LocalDateTime}
+
+import akka.actor.{Actor, ActorRef}
 import akka.event.Logging
 import akka.pattern.{ask, pipe}
+import akka.routing.Listeners
 import akka.util.Timeout
-import akka.routing.{Listeners, Deafen, WithListeners}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration._
-import scala.util.{Failure,Success}
-import org.joda.time.{DateTime, Duration}
-import org.ferrit.core.filter.UriFilter
-import org.ferrit.core.uri.{CrawlUri, Frontier, FetchJob, UriCache}
 import org.ferrit.core.crawler.FetchMessages._
-import org.ferrit.core.http.{HttpClient, Get, Response, DefaultResponse, Stats}
+import org.ferrit.core.http._
 import org.ferrit.core.model.CrawlJob
 import org.ferrit.core.parser.{ContentParser, ParserResult}
-import org.ferrit.core.robot.RobotRulesCacheActor
 import org.ferrit.core.robot.RobotRulesCacheActor.{Allow, DelayFor}
-import org.ferrit.core.util.{Counters, Media, MediaCounters, Stopwatch}
+import org.ferrit.core.uri.{CrawlUri, FetchJob, Frontier, UriCache}
+import org.ferrit.core.util._
 
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import scala.concurrent.duration._
 
 /**
  * This has become a big ball of mud that needs splitting up.
@@ -45,12 +44,12 @@ class CrawlWorker(
   private [crawler] val log = Logging(context.system, getClass)
   private [crawler] val robotRequestTimeout = new Timeout(20.seconds)
   private [crawler] val supportedSchemes = Seq("http", "https")
-  private [crawler] val started = new DateTime
+  private [crawler] val started =  LocalDateTime.now()
   private [crawler] var fcounters = Counters() // fetch attempts
   private [crawler] var rcounters = Counters() // response codes
   private [crawler] var mcounters = MediaCounters() // count media types html, css etc
   private [crawler] var state = CrawlStatus(
-    crawlStop = new DateTime().plus(config.crawlTimeoutMillis)
+    crawlStop = LocalDateTime.now.plusSeconds(config.crawlTimeoutMillis/1000)
   )
   
   override def receive = crawlPending
@@ -114,16 +113,16 @@ class CrawlWorker(
 
   private def completeJob(outcome: CrawlOutcome, throwOpt: Option[Throwable]):CrawlJob = {
     
-    val finished = new DateTime
+    val finished = LocalDateTime.now()
     val message = throwOpt match {
       case Some(t) => outcome.message + ": " + t.getLocalizedMessage
       case None => outcome.message
     }
 
     job.copy(
-      snapshotDate = new DateTime,
+      snapshotDate = LocalDateTime.now(),
       finishedDate = Some(finished),
-      duration = new Duration(started, finished).getMillis,
+      duration = Duration.between(started, finished).toMillis,
       outcome = Some(outcome.state),
       message = Some(message),
       urisSeen = uriCache.size,
@@ -304,8 +303,8 @@ class CrawlWorker(
       response.statusCode,
       fetchJob,
       job.copy(
-        snapshotDate = new DateTime,
-        duration = new Duration(started, new DateTime).getMillis,
+        snapshotDate = LocalDateTime.now,
+        duration = Duration.between(started, LocalDateTime.now).toMillis,
         urisSeen = uriCache.size,
         urisQueued = frontier.size,
         fetchCounters = fcounters.counters,

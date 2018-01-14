@@ -1,12 +1,15 @@
 package org.ferrit.dao
 
+import java.time.LocalDateTime
+
+import akka.actor.Actor
+import org.ferrit.core.crawler.CrawlWorker._
+import org.ferrit.core.crawler.FetchMessages._
+import org.ferrit.core.model.{CrawlJob, Document, DocumentMetaData, FetchLogEntry}
+import org.joda.time.DateTime
+
 import scala.collection.mutable.{Map => MutableMap}
 import scala.concurrent.duration._
-import akka.actor.Actor
-import org.joda.time.DateTime
-import org.ferrit.core.crawler.FetchMessages._
-import org.ferrit.core.crawler.CrawlWorker._
-import org.ferrit.core.model.{CrawlJob, Document, DocumentMetaData, FetchLogEntry}
 
 
 /**
@@ -70,7 +73,7 @@ class Journal(daoFactory: DAOFactory) extends Actor {
         case None => 0
       }
 
-      val now = new DateTime
+      val now = LocalDateTime.now
       val node = "localhost"
       val dayBucket = new DateTime().withTimeAtStartOfDay
       val uri = fetchJob.uri

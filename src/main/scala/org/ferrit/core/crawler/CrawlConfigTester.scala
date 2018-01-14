@@ -3,7 +3,6 @@ package org.ferrit.core.crawler
 import org.ferrit.core.uri.CrawlUri
 import org.ferrit.core.util.KeyValueParser
 
-
 /**
  * A CrawlConfigTester is a utility to aid crawler configuration in a user interface.
  *

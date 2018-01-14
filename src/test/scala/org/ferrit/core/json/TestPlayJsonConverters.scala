@@ -1,27 +1,23 @@
 package org.ferrit.core.json
 
-import scala.util.{Try, Success, Failure}
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
-import play.api.libs.json._
-import org.ferrit.core.crawler.{CrawlConfig, CrawlRejectException}
+import org.ferrit.core.crawler.CrawlConfig
 import org.ferrit.core.filter.FirstMatchUriFilter
 import org.ferrit.core.filter.FirstMatchUriFilter.{Accept => FAccept, Reject => FReject}
 import org.ferrit.core.filter.PriorityRejectUriFilter.{Accept => PAccept, Reject => PReject}
+import org.ferrit.core.json.PlayJsonImplicits.{crawlConfigReads, crawlConfigWrites, firstMatchUriFilterWrites, uriFilterReads}
 import org.ferrit.core.test.CustomMatchers
-import org.ferrit.core.json.PlayJsonImplicits.{uriFilterReads, firstMatchUriFilterWrites}
-import org.ferrit.core.json.PlayJsonImplicits.{priorityRejectUriFilterWrites}
-import org.ferrit.core.json.PlayJsonImplicits.{crawlConfigReads, crawlConfigWrites}
 import org.ferrit.core.uri.CrawlUri
+import org.scalatest.{FlatSpec, Matchers}
+import play.api.libs.json._
 
 
-class TestPlayJsonConverters extends FlatSpec with ShouldMatchers with CustomMatchers {
-  
+class TestPlayJsonConverters extends FlatSpec with Matchers with CustomMatchers {
+
   behavior of "CrawlConfig json serialization"
-  
+
 
   it should "serialize and deserialize FirstMatchUriFilter" in {
-    
+
     val filter = new FirstMatchUriFilter(Seq(
       FReject("http://other-site.net".r),
       FAccept("http://site.net".r)
@@ -38,7 +34,7 @@ class TestPlayJsonConverters extends FlatSpec with ShouldMatchers with CustomMat
     filter2.asInstanceOf[FirstMatchUriFilter].rules.map(_.toString) should equal (
       filter.rules.map(_.toString)
     )
-    
+
   }
 
   it should "serialize and deserialize CrawlConfig" in {
@@ -69,7 +65,7 @@ class TestPlayJsonConverters extends FlatSpec with ShouldMatchers with CustomMat
     }
 
     config2.crawlerName should equal (config.crawlerName)
-    
+
   }
 
   it should "parse CrawlConfig from JSON string" in {
@@ -108,5 +104,5 @@ class TestPlayJsonConverters extends FlatSpec with ShouldMatchers with CustomMat
     }
 
   }
- 
+
 }

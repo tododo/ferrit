@@ -1,17 +1,18 @@
 package org.ferrit.core.test
 
-import scala.concurrent.ExecutionContext
 import org.ferrit.core.http.{Request, Response}
-import org.ferrit.core.util.Headers
 import org.ferrit.core.test.FakeHttpClient.NotFound
+import org.ferrit.core.util.Headers
 
+import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 
 /**
- * Generates a website of N pages to support a crawler reachability test and
- * work out the crawler through a very large number of pages quickly.
+ * Generates a website of N pages to support a org.ferrit.core.crawler reachability test and
+ * work out the org.ferrit.core.crawler through a very large number of pages quickly.
  *
  * Each page contains exactly one hyperlink
- * to the next page in the sequence which the crawler is expected to follow.
+ * to the next page in the sequence which the org.ferrit.core.crawler is expected to follow.
  * The last page can only be reached by crawling through all the previous links. 
  * Such a site containing N pages will also be considered a site of depth N.
  *
@@ -62,8 +63,9 @@ class LinkedListHttpClient(domainName: String, totalPages: Int)(implicit ec: Exe
   val headers = Map(Headers.ContentTypeTextHtmlUtf8)
   val linkHtml = """<a href="%s/page%s.html">link text</a>"""
   val UriPath = """page(\d+)\.html""".r
-
-  // The HTML is small because the larger the template the more work 
+  val regPageNum = """\(\\d\+\)\\""".r
+  lazy val pages = new mutable.HashMap[String, PartResponse]()
+  // The HTML is small because the larger the template the more work
   // the link extracting HTML parser will need to do per page.
 
   val html = """
@@ -114,7 +116,7 @@ class LinkedListHttpClient(domainName: String, totalPages: Int)(implicit ec: Exe
         }
       }
     }
-
+    pages.put(request.crawlUri.crawlableUri, pr)
     pr.toResponse(request)
   }
 
@@ -127,5 +129,8 @@ class LinkedListHttpClient(domainName: String, totalPages: Int)(implicit ec: Exe
     )
   }
 
+  override def getTrackedResponses(): Map[String, PartResponse] = {
+    pages.toMap
+  }
 }
 

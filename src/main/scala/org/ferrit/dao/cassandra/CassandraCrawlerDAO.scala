@@ -1,13 +1,11 @@
 package org.ferrit.dao.cassandra
 
-import com.datastax.driver.core.{Session, PreparedStatement}
-import com.datastax.driver.core.{BoundStatement, ResultSet, Row}
-import play.api.libs.json._
+import com.datastax.driver.core.{BoundStatement, PreparedStatement, Row, Session}
+import org.ferrit.core.json.PlayJsonImplicits
 import org.ferrit.core.model.Crawler
-import org.ferrit.core.crawler.CrawlConfig
 import org.ferrit.dao.CrawlerDAO
 import org.ferrit.dao.cassandra.CassandraDAO._
-import org.ferrit.core.json.PlayJsonImplicits
+import play.api.libs.json.{JsError, JsSuccess, Json}
 
 
 class CassandraCrawlerDAO(ttl: CassandraColumnTTL)(implicit session: Session) extends CrawlerDAO {

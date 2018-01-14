@@ -1,6 +1,6 @@
 package org.ferrit.core.model
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 /**
  * A single entry that captures various properties of a single fetch operation
@@ -8,19 +8,19 @@ import org.joda.time.DateTime
  * Also includes some additional crawl stats.
  */
 case class FetchLogEntry(
-  
+
   // key for the entry to co-locate it with other entries
   crawlerId: String,
 
   // the id of the CrawlJob associated with this fetch
   jobId: String,
-  
+
 
   // FETCH STATS
   // -----------
 
   // identifies when the fetch happened
-  logTime: DateTime,
+  logTime: LocalDateTime,
 
   // the URI that was crawled
   uri: String,
@@ -39,7 +39,7 @@ case class FetchLogEntry(
 
   // many links may explain slow parsing
   linksExtracted: Int,
-  
+
   // overall duration of fetch (request and parse)
   fetchDuration: Int,
 
@@ -48,7 +48,7 @@ case class FetchLogEntry(
 
   // performance of the content parser
   parseDuration: Int,
-  
+
 
   // CRAWL STATS (RUNNING TOTALS)
   // ----------------------------

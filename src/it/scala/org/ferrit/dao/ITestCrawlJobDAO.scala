@@ -1,15 +1,16 @@
 package org.ferrit.dao
 
+import java.time.{LocalDate, LocalDateTime}
+
 import scala.util.Random
-import org.joda.time.DateTime
-import org.scalatest.matchers.ShouldMatchers
 import org.ferrit.core.model.CrawlJob
 import org.ferrit.core.util.Media
+import org.scalatest.Matchers
 
 
-class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
-  
-  behavior of "CrawlJobDAO" 
+class ITestCrawlJobDAO extends AbstractDAOTest with Matchers {
+
+  behavior of "CrawlJobDAO"
 
   val jobDao = daoFactory.crawlJobDao
 
@@ -18,13 +19,13 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
     val crawlerId = "1234"
     val jobId = makeStringId
     val job = CrawlJob(
-      crawlerId = crawlerId, 
+      crawlerId = crawlerId,
       crawlerName = "Test Crawl",
       jobId = jobId,
       node = "localhost",
-      snapshotDate = new DateTime,
-      partitionDate = new DateTime().withTimeAtStartOfDay,
-      createdDate = new DateTime,
+      snapshotDate = LocalDateTime.now(),
+      partitionDate = LocalDate.now(),
+      createdDate = LocalDateTime.now(),
       finishedDate = None,
       duration = 0,
       outcome = None,
@@ -38,7 +39,7 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
 
     jobDao.insertByCrawler(Seq(job))
     jobDao.insertByDate(Seq(job))
-    
+
     jobDao.find(crawlerId, jobId) match {
       case Some(job2) => job2 should equal (job)
       case None => fail(s"Job not found")
@@ -51,14 +52,14 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
     val crawlerId = "4321"
     val jobId = makeStringId
     val job = CrawlJob(
-      crawlerId = crawlerId, 
+      crawlerId = crawlerId,
       crawlerName = "Test Crawl 2",
       jobId = jobId,
       node = "localhost",
-      snapshotDate = new DateTime,
-      partitionDate = new DateTime().withTimeAtStartOfDay,
-      createdDate = new DateTime,
-      finishedDate = Some(new DateTime),
+      snapshotDate = LocalDateTime.now(),
+      partitionDate = LocalDate.now(),
+      createdDate = LocalDateTime.now(),
+      finishedDate = Some(LocalDateTime.now()),
       duration = 0,
       outcome = Some("Completed Okay"),
       message = None,
@@ -68,7 +69,7 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
       responseCounters = Map.empty,
       mediaCounters = Map.empty
     )
-    
+
     jobDao.insertByCrawler(Seq(job))
     jobDao.insertByDate(Seq(job))
 
@@ -83,11 +84,9 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
 
     val crawlerId = makeStringId
     val maxJobs = 100
-    val randomDateRange = new DateTime()
+    val randomDateRange = LocalDate.now()
         .plusDays(Random.nextInt(365))
-        .plusMinutes(Random.nextInt(60))
-        .plusHours(Random.nextInt(24))
-        .withTimeAtStartOfDay
+
 
     val jobs:Seq[CrawlJob] = (0 until maxJobs).map({i =>
       CrawlJob(
@@ -95,10 +94,10 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
         crawlerName = s"Test Crawl $i",
         jobId = makeStringId,
         node = "localhost",
-        snapshotDate = new DateTime,
+        snapshotDate = LocalDateTime.now(),
         partitionDate = randomDateRange,
-        createdDate = new DateTime,
-        finishedDate = Some(new DateTime),
+        createdDate = LocalDateTime.now(),
+        finishedDate = Some(LocalDateTime.now()),
         duration = i,
         outcome = Some("Completed Okay"),
         message = None,
@@ -107,7 +106,7 @@ class ITestCrawlJobDAO extends AbstractDAOTest with ShouldMatchers {
         fetchCounters = Map("total" -> i),
         responseCounters = Map("200" -> i),
         mediaCounters = Map("text/html" -> Media(i, i*100))
-      )  
+      )
     })
 
     jobDao.insertByCrawler(jobs)

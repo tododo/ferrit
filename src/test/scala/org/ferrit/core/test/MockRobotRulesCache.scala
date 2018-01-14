@@ -1,9 +1,9 @@
 package org.ferrit.core.test
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
 import org.ferrit.core.robot.RobotRulesCache
-import org.ferrit.core.uri.{CrawlUri, UriReader}
+import org.ferrit.core.uri.UriReader
+
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class MockRobotRulesCache(implicit ec: ExecutionContext) extends RobotRulesCache {

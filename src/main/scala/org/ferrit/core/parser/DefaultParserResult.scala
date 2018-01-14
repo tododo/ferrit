@@ -1,6 +1,5 @@
 package org.ferrit.core.parser
 
-
 case class DefaultParserResult(
   
   override val links: Set[Link],

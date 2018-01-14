@@ -1,13 +1,14 @@
 package org.ferrit.dao.cassandra
 
-import scala.collection.JavaConverters._
-import com.datastax.driver.core.{Session, PreparedStatement, BatchStatement}
-import com.datastax.driver.core.{BoundStatement, ResultSet, Row}
-import org.joda.time.DateTime
+import java.time.{LocalDate, LocalDateTime}
+
+import com.datastax.driver.core._
 import org.ferrit.core.model.CrawlJob
 import org.ferrit.core.util.Media
 import org.ferrit.dao.CrawlJobDAO
 import org.ferrit.dao.cassandra.CassandraDAO._
+
+import scala.collection.JavaConverters._
 
 
 class CassandraCrawlJobDAO(ttl: CassandraColumnTTL)(implicit session: Session) extends CrawlJobDAO {
@@ -74,7 +75,7 @@ class CassandraCrawlJobDAO(ttl: CassandraColumnTTL)(implicit session: Session) e
     })
   }
 
-  override def find(partitionDate: DateTime):Seq[CrawlJob] = {
+  override def find(partitionDate: LocalDate):Seq[CrawlJob] = {
     val bs = stmtFindByDate.bind().setDate("partition_date", partitionDate)
     mapAll(session.execute(bs)) {
       row => rowToEntity(row)
@@ -88,9 +89,9 @@ class CassandraCrawlJobDAO(ttl: CassandraColumnTTL)(implicit session: Session) e
       row.getString("job_id"),
       row.getString("node"),
       row.getDate("partition_date"),
-      row.getDate("snapshot_date"),
-      row.getDate("created_date"),
-      row.getDate("finished_date"),
+      row.getTimestamp("snapshot_date"),
+      row.getTimestamp("created_date"),
+      row.getTimestamp("finished_date"),
       row.getLong("duration"),
       row.getString("outcome"),
       row.getString("message"),
@@ -125,9 +126,9 @@ class CassandraCrawlJobDAO(ttl: CassandraColumnTTL)(implicit session: Session) e
       .setString("job_id", c.jobId)
       .setString("node", c.node)
       .setDate("partition_date", c.partitionDate)
-      .setDate("snapshot_date", c.snapshotDate)
-      .setDate("created_date", c.createdDate)
-      .setDate("finished_date", c.finishedDate)
+      .setTimestamp("snapshot_date", c.snapshotDate)
+      .setTimestamp("created_date", c.createdDate)
+      .setTimestamp("finished_date", c.finishedDate)
       .setLong("duration", c.duration)
       .setString("outcome", c.outcome)
       .setString("message", c.message)

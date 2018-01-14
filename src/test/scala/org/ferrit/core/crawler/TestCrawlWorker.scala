@@ -1,37 +1,33 @@
 package org.ferrit.core.crawler
 
-import akka.actor.{Actor, ActorSystem, ActorRef, Props, Terminated}
-import akka.testkit.{TestKit, ImplicitSender, TestProbe}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.routing.Listen
-import org.scalatest.{FlatSpec, BeforeAndAfterAll}
-import org.scalatest.matchers.ShouldMatchers
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
-import scala.util.Random
-import org.ferrit.core.crawler.FetchMessages._
+import akka.testkit.{ImplicitSender, TestKit}
 import org.ferrit.core.crawler.CrawlWorker._
+import org.ferrit.core.crawler.FetchMessages._
 import org.ferrit.core.filter.FirstMatchUriFilter
 import org.ferrit.core.filter.FirstMatchUriFilter._
-import org.ferrit.core.http.{HttpClient, Request, Response}
 import org.ferrit.core.model.CrawlJob
 import org.ferrit.core.parser.MultiParser
 import org.ferrit.core.robot.{RobotRulesCache, RobotRulesCacheActor}
-import org.ferrit.core.uri.{CrawlUri, UriReader, InMemoryFrontier}
-import org.ferrit.core.uri.{UriCache, InMemoryUriCache}
-import org.ferrit.core.util.{Counters, MediaCounters, Media, UniqueId}
 import org.ferrit.core.test.FakeHttpClient._
-import org.ferrit.core.test.{ParrotHttpClient, LinkedListHttpClient}
-import org.ferrit.core.test.{MockRobotRulesCache, PartResponse}
-import org.ferrit.core.test.{ProxyActor}
+import org.ferrit.core.test.{LinkedListHttpClient, MockRobotRulesCache, ParrotHttpClient, ProxyActor}
+import org.ferrit.core.uri.{CrawlUri, InMemoryFrontier, InMemoryUriCache, UriReader}
+import org.ferrit.core.util.{Media, UniqueId}
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.Random
 
 
-class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
+class TestCrawlWorker extends FlatSpec with Matchers with BeforeAndAfterAll {
   
   implicit val system = ActorSystem("test")
 
   implicit val execContext = system.dispatcher
 
-  override def afterAll():Unit = system.shutdown()
+  override def afterAll():Unit = system.terminate()
 
   class CrawlTest extends TestKit(system) with ImplicitSender {
 
@@ -39,7 +35,7 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
      * The CrawlWorker is intended to be a child of CrawlerManager
      * with all communication to it mediated through the CrawlerManager.
      * Therefore we create a proxy parent for the CrawlWorker and talk 
-     * to the crawler through the proxy.
+     * to the org.ferrit.core.crawler through the proxy.
      * 
      * Another reason for using this proxy:
      * It is possible to create a CrawlWorker using system.actorOf(...),
@@ -59,7 +55,7 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   /**
    * To help debug test failures, a debug logger can be registered with
    * the Crawler that will then log the internal activitiy. 
-   * For example, just add this line before running crawler:
+   * For example, just add this line before running org.ferrit.core.crawler:
    *
    *   proxy !Listen(logger)
    *
@@ -89,11 +85,11 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
         """#item { background: url('%s') }"""
 
   /** 
-   * Each crawler Actor requires a different name else Akka complains.
+   * Each org.ferrit.core.crawler Actor requires a different name else Akka complains.
    * Underlying reason is that test actors may still exist for some time after a
    * test has completed and names collide with the Actor in the next test.
    */
-  def mkCrawlerName = "crawler-" + System.currentTimeMillis + "-" + Random.nextInt(100)
+  def mkCrawlerName = "org.ferrit.core.crawler-" + System.currentTimeMillis + "-" + Random.nextInt(100)
 
   def seedsFor(uri: String) = Seq(CrawlUri(uri))
   def uriFilterFor(uri: String) = new FirstMatchUriFilter(Seq(Accept(uri.r)))
@@ -130,8 +126,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new ParrotHttpClient(Map.empty),
       mockRobotRulesCache,
       MultiParser.default,
@@ -157,8 +153,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new LinkedListHttpClient(site, 2),
       mockRobotRulesCache,
       MultiParser.default,
@@ -207,14 +203,17 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       Accept(site.r)
     ))
 
+    val cssContentLength = responses.getOrElse(s"$site/styles.css", CssResponse("")).content.length
+    val htmlContentLength = responses.filter(e => uriFilter.accept(CrawlUri(e._1))).map(e => e._2.content.length)
+      .reduceLeft(_+_) - cssContentLength
     val config = makeConfig(site).copy(uriFilter = uriFilter)
 
     val proxy = makeCrawlerProxy(Props(
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new ParrotHttpClient(responses),
       mockRobotRulesCache,
       MultiParser.default,
@@ -238,8 +237,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
             "404" -> 2 // page3.html + png
           ),
           Map(
-            "text/html; charset=UTF-8" -> Media(3, 783),
-            "text/css; charset=UTF-8" -> Media(1, 42)
+            "text/html; charset=UTF-8" -> Media(3, htmlContentLength),
+            "text/css; charset=UTF-8" -> Media(1, cssContentLength)
           )
         ))
         true
@@ -266,8 +265,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new ParrotHttpClient(responses),
       mockRobotRulesCache,
       MultiParser.default,
@@ -292,19 +291,19 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     val site = "http://site.net"
     val totalPages = 1000
     val config = makeConfig(site)
-
+    val httpClient = new LinkedListHttpClient(site, totalPages)
     val proxy = makeCrawlerProxy(Props(
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
-      new LinkedListHttpClient(site, totalPages),
+       InMemoryFrontier(config.maxQueueSize, config.id),
+       InMemoryUriCache(config.id),
+      httpClient,
       mockRobotRulesCache,
       MultiParser.default,
       new DefaultStopRule
     ))
-    
+//    val totalContentLength = httpClient.calculateLength
     proxy ! Listen(self)
     proxy ! Run
 
@@ -319,7 +318,7 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
             "200" -> totalPages
           ),
           Map(
-            "text/html; charset=UTF-8" -> Media(totalPages, 224730)
+            "text/html; charset=UTF-8" -> Media(totalPages, httpClient.calculateLength)
           )
         ))
         true
@@ -350,8 +349,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+       InMemoryFrontier(config.maxQueueSize, config.id),
+       InMemoryUriCache(config.id),
       new ParrotHttpClient(responses),
       makeRobotRulesCache(robotsCache),
       MultiParser.default,
@@ -417,8 +416,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new ParrotHttpClient(responses),
       makeRobotRulesCache(robotsCache),
       MultiParser.default,
@@ -468,19 +467,20 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     val found = 4 // if including depth 0
     val totalPages = 10 // provide more pages than should be crawled
     val config = makeConfig(site).copy(maxDepth = depth)
-
+    val httpClient = new LinkedListHttpClient(site, totalPages)
     val proxy = makeCrawlerProxy(Props(
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
-      new LinkedListHttpClient(site, totalPages),
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
+      httpClient,
       mockRobotRulesCache,
       MultiParser.default,
       new DefaultStopRule
     ))
-    
+
+
 
     proxy !Listen(self)
     proxy !Run
@@ -496,13 +496,12 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
             "200" -> found
           ),
           Map(
-            "text/html; charset=UTF-8" -> Media(found, 884)
+            "text/html; charset=UTF-8" -> Media(found, httpClient.calculateLength())
           )
         ))
         true
       case _ => false
     }
-    
   }
 
   it should "observe the maximum crawl depth even with multiple seeds" in new CrawlTest {
@@ -549,14 +548,14 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       ),
       maxDepth = maxDepth
     )
-
+    val httpClient = new ParrotHttpClient(responses, Seq(seed1, seed2, pageA, pageB, pageD))
     val proxy = makeCrawlerProxy(Props(
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
-      new ParrotHttpClient(responses),
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
+      httpClient,
       mockRobotRulesCache,
       MultiParser.default,
       new DefaultStopRule
@@ -577,7 +576,7 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
               "200" -> found
             ),
             Map(
-              "text/html; charset=UTF-8" -> Media(found, 980)
+              "text/html; charset=UTF-8" -> Media(found, httpClient.calculateLength())
             )
         ))
         true
@@ -596,8 +595,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+       InMemoryFrontier(config.maxQueueSize, config.id),
+       InMemoryUriCache(config.id),
       new LinkedListHttpClient(site, 10),
       mockRobotRulesCache,
       MultiParser.default,
@@ -664,8 +663,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new ParrotHttpClient(responses),
       mockRobotRulesCache,
       MultiParser.default,
@@ -715,8 +714,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
       classOf[CrawlWorker], 
       makeJob(config),
       config,
-      new InMemoryFrontier,
-      new InMemoryUriCache,
+      InMemoryFrontier(config.maxQueueSize, config.id),
+      InMemoryUriCache(config.id),
       new ParrotHttpClient(responses) {
         override def responseDelay = reqDelay
       },
@@ -744,8 +743,8 @@ class TestCrawlWorker extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
         classOf[CrawlWorker], 
         makeJob(config),
         config,
-        new InMemoryFrontier,
-        new InMemoryUriCache,
+        InMemoryFrontier(config.maxQueueSize, config.id),
+        InMemoryUriCache(config.id),
         new ParrotHttpClient(Map.empty),
         mockRobotRulesCache,
         MultiParser.default,

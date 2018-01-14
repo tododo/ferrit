@@ -1,10 +1,12 @@
 package org.ferrit.core.test
 
 import java.util.concurrent.TimeoutException
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future, Promise}
+
 import org.ferrit.core.http.{HttpClient, Request, Response}
 import org.ferrit.core.util.Headers
+
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, Future, Promise}
 
 
 trait FakeHttpClient extends HttpClient {
@@ -16,6 +18,15 @@ trait FakeHttpClient extends HttpClient {
     Future {
       handleRequest(request)
     }
+  }
+  def calculateLength(): Int = {
+    val responses = getTrackedResponses()
+    val l = for (e <- responses) yield e._2.content.length()
+    l.foldLeft(0) { _ + _}
+  }
+
+  def getTrackedResponses(): Map[String, PartResponse] = {
+    scala.collection.immutable.Map()
   }
 
   def responseDelay:Duration = 0.milliseconds

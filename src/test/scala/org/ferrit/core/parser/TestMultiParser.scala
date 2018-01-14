@@ -1,14 +1,10 @@
 package org.ferrit.core.parser
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.ferrit.core.http.Response
 import org.mockito.Mockito._
-import org.ferrit.core.http.{Response, Stats}
-import org.ferrit.core.uri.CrawlUri
-import org.ferrit.core.util.HttpUtil._
+import org.scalatest.{FlatSpec, Matchers}
 
-
-class TestMultiParser extends FlatSpec with ShouldMatchers {
+class TestMultiParser extends FlatSpec with Matchers {
   
   behavior of "MultiParser"
 

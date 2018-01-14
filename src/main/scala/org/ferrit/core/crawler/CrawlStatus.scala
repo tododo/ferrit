@@ -1,12 +1,12 @@
 package org.ferrit.core.crawler
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 
 case class CrawlStatus(
-  
-  crawlStart: DateTime = new DateTime,
-  crawlStop: DateTime,
+
+  crawlStart: LocalDateTime = LocalDateTime.now,
+  crawlStop: LocalDateTime,
   alive: Boolean = true,
   shouldStop: Boolean = false
 
@@ -14,6 +14,6 @@ case class CrawlStatus(
 
   def stop = copy(shouldStop = true)
   def dead = copy(alive = false)
-  def now = new DateTime
+  def now = LocalDateTime.now
   
 }

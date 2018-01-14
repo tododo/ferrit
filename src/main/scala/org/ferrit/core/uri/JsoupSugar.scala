@@ -1,6 +1,7 @@
-package org.ferrit.core.util
+package org.ferrit.core.uri
 
 import org.jsoup.nodes.Element
+
 import scala.collection.JavaConverters._
 
 

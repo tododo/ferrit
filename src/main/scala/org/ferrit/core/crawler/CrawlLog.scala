@@ -1,20 +1,19 @@
 package org.ferrit.core.crawler
 
+import java.time.{Duration, LocalDateTime}
+
 import akka.actor.{Actor, Terminated}
 import akka.event.Logging
-import org.joda.time.{DateTime, Duration}
-import org.ferrit.core.crawler.FetchMessages._
-import org.ferrit.core.crawler.CrawlWorker._
 import org.ferrit.core.model.CrawlJob
-import org.ferrit.core.parser.ParserResult
-import org.ferrit.core.uri.FetchJob
+import org.ferrit.core.crawler.CrawlWorker._
+import org.ferrit.core.crawler.FetchMessages._
 import org.ferrit.core.util.TextFormatter._
 
 /**
  * Register this with CrawlWorker to be notified of crawl events.
  * The fetch related messages will generate highly verbose output but
  * be helpful with debugging, for without this feedback it is hard to 
- * know what the crawler is doing.
+ * know what the org.ferrit.core.crawler is doing.
  */
 class CrawlLog extends Actor {
   
@@ -42,12 +41,12 @@ class CrawlLog extends Actor {
         line("=", w),
         "",
         lcell("Crawler name:", 16," ") + "[" + config.crawlerName + "]",
-        lcell("Time:", 16," ") + "[" + new DateTime + "]",
+        lcell("Time:", 16," ") + "[" + LocalDateTime.now + "]",
         "",
         line("=", w),
         ""
       ).foreach(log.error)
-      log.error(t, s"Failed to start crawler, reason: ${t.getLocalizedMessage}")
+      log.error(t, s"Failed to start org.ferrit.core.crawler, reason: ${t.getLocalizedMessage}")
       stop
     
     case EmptyFrontier => 
@@ -120,9 +119,9 @@ class CrawlLog extends Actor {
     val mc = job.mediaCounters
     val rc = job.responseCounters
     
-    val duration = new Duration(job.createdDate, job.finishedDate.get)
+    val duration = Duration.between(job.createdDate, job.finishedDate.get)
     val totalFiles = fc.getOrElse(FetchSucceeds, 0)
-    val avgFetchTime = new Duration(duration.getMillis / Math.max(totalFiles, 1))
+    val avgFetchTime = duration.toMillis / Math.max(totalFiles, 1)
     val allBytes = mc.map(pair => pair._2.totalBytes).sum
     
     val w = 80
@@ -140,11 +139,11 @@ class CrawlLog extends Actor {
         line("=", w),
         "",
         lcell("Crawler name:", 16," ") + "[" + job.crawlerName + "]",
-        lcell("Stop time:", 16," ") + "[" + new DateTime + "]",
+        lcell("Stop time:", 16," ") + "[" + LocalDateTime.now + "]",
         lcell("Crawl outcome:", 16," ") + s"[$outcome, $message]",
         "",
-        lcell("Duration: ", hw, ".") + rcell(" " + formatElapsedTime(duration.getMillis), hw, "."),
-        lcell("Avg fetch time: ", hw, ".") + rcell(" " + formatElapsedTime(avgFetchTime.getMillis), hw, "."),
+        lcell("Duration: ", hw, ".") + rcell(" " + formatElapsedTime(duration.toMillis), hw, "."),
+        lcell("Avg fetch time: ", hw, ".") + rcell(" " + formatElapsedTime(avgFetchTime), hw, "."),
         lcell("Files fetched: ", hw, ".")        + rcell(" " + totalFiles, hw, "."),
         lcell("Total content: ", hw, ".")        + rcell(" " + formatBytes(allBytes), hw, "."),
         lcell("Redirects: ", hw, ".")         + rcell(" " + fc.getOrElse(FetchRedirects, 0), hw, "."),

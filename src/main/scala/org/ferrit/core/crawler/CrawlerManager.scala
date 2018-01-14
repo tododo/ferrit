@@ -1,23 +1,19 @@
 package org.ferrit.core.crawler
 
-import akka.actor.{Actor, ActorRef, Props, Terminated}
-import akka.actor.OneForOneStrategy
 import akka.actor.SupervisorStrategy.Stop
-import akka.pattern.ask
-import akka.pattern.pipe
+import akka.actor.{Actor, ActorRef, OneForOneStrategy, Props, Terminated}
 import akka.event.Logging
+import akka.pattern.{ask, pipe}
 import akka.routing.Listen
 import akka.util.Timeout
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import org.ferrit.core.crawler.CrawlWorker.{Run, Started, StartOkay, StartFailed}
-import org.ferrit.core.crawler.CrawlWorker.{StopCrawl, Stopped}
+import org.ferrit.core.crawler.CrawlWorker.{Run, StartFailed, StartOkay, StopCrawl}
 import org.ferrit.core.http.HttpClient
 import org.ferrit.core.model.CrawlJob
 import org.ferrit.core.parser.MultiParser
-import org.ferrit.core.robot.{DefaultRobotRulesCache, RobotRulesCacheActor}
-import org.ferrit.core.uri.InMemoryFrontier
-import org.ferrit.core.uri.InMemoryUriCache
+import org.ferrit.core.uri.{InMemoryFrontier, InMemoryUriCache}
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 
 /**
@@ -58,14 +54,17 @@ class CrawlerManager(
     case StartJob(config, listeners) =>
       if (jobs.size >= maxCrawlers) {
         sender ! JobStartFailed(new CrawlRejectException(tooManyCrawlers))
-      } else if (jobs.exists(pair => pair._2.job.crawlerId == config.id)) {
+      } else if(jobs.exists(pair => pair._2.job.crawlerId == config.id)) {
         sender ! JobStartFailed(new CrawlRejectException(crawlerExists))
-      } else {
+      }
+      else {
         val resolvedConfig = config.userAgent match {
           case Some(ua) => config
           case None => config.copy(userAgent = Some(userAgent))
         }
+
         startCrawlJob(resolvedConfig, listeners) pipeTo sender
+
       }
     
     case StopJob(id) =>
@@ -106,8 +105,8 @@ class CrawlerManager(
         classOf[CrawlWorker], 
         newJob,
         config,
-        new InMemoryFrontier,
-        new InMemoryUriCache,
+        InMemoryFrontier(config.maxQueueSize, config.id),
+        InMemoryUriCache(config.id),
         httpClient,
         robotRulesCache,
         MultiParser.default,

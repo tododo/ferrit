@@ -1,9 +1,8 @@
 package org.ferrit.dao.cassandra
 
-import com.typesafe.config.Config
 import com.datastax.driver.core.{Cluster, Session}
 import com.datastax.driver.core.policies.Policies
-import org.ferrit.core.model._
+import com.typesafe.config.Config
 
 
 class CassandraPersistenceManager(config: CassandraConfig) {
@@ -12,7 +11,7 @@ class CassandraPersistenceManager(config: CassandraConfig) {
   val session: Session = cluster.connect(config.keyspace)
   
   def shutdown():Unit = {
-    cluster.shutdown()
+    cluster.close()
   }
 
   def getColumnTTL(config: Config):CassandraColumnTTL =   

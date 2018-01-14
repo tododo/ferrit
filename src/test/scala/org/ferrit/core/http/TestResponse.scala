@@ -1,10 +1,9 @@
 package org.ferrit.core.http
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestResponse extends FlatSpec with ShouldMatchers {
+class TestResponse extends FlatSpec with Matchers {
   
   behavior of "Response"
 

@@ -1,8 +1,8 @@
 package org.ferrit.dao.cassandra
 
 import java.nio.ByteBuffer
-import com.datastax.driver.core.{Session, PreparedStatement}
-import com.datastax.driver.core.{BoundStatement, ResultSet, Row}
+
+import com.datastax.driver.core._
 import org.ferrit.core.model.Document
 import org.ferrit.dao.DocumentDAO
 import org.ferrit.dao.cassandra.CassandraDAO._

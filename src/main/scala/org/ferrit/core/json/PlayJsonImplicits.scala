@@ -1,14 +1,17 @@
 package org.ferrit.core.json
 
+import java.time.{LocalDate, LocalDateTime}
+
 import org.joda.time.DateTime
 import play.api.libs.json._
+
 import scala.util.matching.Regex
 import org.ferrit.core.crawler.{CrawlConfig, CrawlConfigTester}
-import org.ferrit.core.crawler.CrawlConfigTester.{Results, Result}
+import org.ferrit.core.crawler.CrawlConfigTester.{Result, Results}
 import org.ferrit.core.filter._
 import org.ferrit.core.model.{CrawlJob, DocumentMetaData, FetchLogEntry}
-import org.ferrit.core.util.{Media, KeyValueParser}
-import org.ferrit.core.uri.{CrawlUri, SprayCrawlUri}
+import org.ferrit.core.util.{KeyValueParser, Media}
+import org.ferrit.core.uri.{CrawlUri, FerritCrawlUri}
 
 object PlayJsonImplicits {
   
@@ -24,9 +27,22 @@ object PlayJsonImplicits {
       "totalBytes" -> m.totalBytes
     )
   }
+  implicit val localDateFormat = new Format[LocalDate] {
+    override def reads(json: JsValue): JsResult[LocalDate] =
+      json.validate[String].map(LocalDate.parse)
 
+    override def writes(o: LocalDate): JsValue = Json.toJson(o.toString)
+  }
+
+  implicit val localDateTimeFormat = new Format[LocalDateTime] {
+    override def reads(json: JsValue): JsResult[LocalDateTime] =
+      json.validate[String].map(LocalDateTime.parse)
+
+    override def writes(o: LocalDateTime): JsValue = Json.toJson(o.toString)
+  }
   implicit val crawlJobWrites = Json.writes[CrawlJob]
   implicit val fetchLogEntryWrites = Json.writes[FetchLogEntry]
+
 
 
   implicit val uriFilterReads = new Reads[UriFilter] {
@@ -103,7 +119,7 @@ object PlayJsonImplicits {
 
   implicit val crawlUriWrites = new Writes[CrawlUri] {
     def writes(uri: CrawlUri):JsValue = {
-      JsString(uri.asInstanceOf[SprayCrawlUri].originalUri)
+      JsString(uri.asInstanceOf[FerritCrawlUri].originalUri)
     }
   }
 

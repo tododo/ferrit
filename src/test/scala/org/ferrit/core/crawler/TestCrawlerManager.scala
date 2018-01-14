@@ -1,30 +1,29 @@
 package org.ferrit.core.crawler
 
-import akka.actor.{ActorSystem, Actor, ActorRef, Props}
-import akka.testkit.{TestKit, ImplicitSender}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
+import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
-import scala.concurrent.{Await, Future, Promise}
-import scala.concurrent.duration._
-import org.scalatest.{BeforeAndAfterAll, FlatSpec}
-import org.scalatest.matchers.ShouldMatchers
 import org.ferrit.core.crawler.CrawlWorker.Stopped
+import org.ferrit.core.crawler.CrawlerManager._
 import org.ferrit.core.filter.FirstMatchUriFilter
 import org.ferrit.core.filter.FirstMatchUriFilter.Accept
 import org.ferrit.core.http.{HttpClient, Request, Response}
 import org.ferrit.core.model.CrawlJob
-import org.ferrit.core.robot.{RobotRulesCache, DefaultRobotRulesCache, RobotRulesCacheActor}
-import org.ferrit.core.test.{LinkedListHttpClient, FakeHttpClient}
-import org.ferrit.core.test.FakeHttpClient.HtmlResponse
+import org.ferrit.core.robot.{DefaultRobotRulesCache, RobotRulesCacheActor}
+import org.ferrit.core.test.FakeHttpClient._
+import org.ferrit.core.test.{FakeHttpClient, LinkedListHttpClient}
 import org.ferrit.core.uri.CrawlUri
-import org.ferrit.core.util.{Counters, UniqueId}
+import org.ferrit.core.util.UniqueId
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future, Promise}
 
 
-class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
+class TestCrawlerManager extends FlatSpec with Matchers with BeforeAndAfterAll {
   
   behavior of "CrawlerManager"
-
-  import CrawlerManager._
 
   implicit val system = ActorSystem("test")
   implicit val execContext = system.dispatcher
@@ -33,7 +32,7 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
 
   def logger = system.actorOf(Props[CrawlLog])
 
-  override def afterAll():Unit = system.shutdown()
+  override def afterAll():Unit = system.terminate()
 
   class ManagerTest extends TestKit(system) with ImplicitSender {
 
@@ -79,19 +78,19 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
   val NoLogger = Nil // or Some(logger)
 
 
-  it should "not accept new job with duplicate crawler configuration" in new ManagerTest {
+  it should "not accept new job with duplicate org.ferrit.core.crawler configuration" in new ManagerTest {
     
     val site = "http://site.net"
     val manager = makeManager(10, new LinkedListHttpClient(site, 10))
     val config = makeConfig(site)
 
     manager ! StartJob(config, NoLogger)
-    fishForMessage(1.second) { 
+    fishForMessage(1.second) {
       case c: CrawlJob => true 
     }
 
     manager ! StartJob(config, NoLogger)
-    fishForMessage(1.second) { 
+    fishForMessage(1.second) {
       case JobStartFailed(CrawlRejectException(CrawlerManager.crawlerExists)) => true 
     }
   }
@@ -117,7 +116,7 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
 
   }
 
-  it should "not accept new job for a bad crawler configuration" in new ManagerTest {
+  it should "not accept new job for a bad org.ferrit.core.crawler configuration" in new ManagerTest {
 
     val manager = makeManager(10, new LinkedListHttpClient("etc", 10))
     val config = makeConfig("etc").copy(userAgent = Some(" "))
@@ -157,12 +156,12 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
   }
 
   //
-  // The number of pages and crawl delay needs to be such that the crawler
+  // The number of pages and crawl delay needs to be such that the org.ferrit.core.crawler
   // does not complete by itself before there is a chance to issue a StopCrawl
   // and check that the job was stopped and removed.
   //
 
-  it should "stop a running crawler" in new ManagerTest {
+  it should "stop a running org.ferrit.core.crawler" in new ManagerTest {
     
     val site = "http://site.net"
     val manager = makeManager(10, new LinkedListHttpClient(site, 50))
@@ -253,7 +252,7 @@ class TestCrawlerManager extends FlatSpec with ShouldMatchers with BeforeAndAfte
     //   (parsing HTML takes longer and more links need extracting)
     // * Crawlers are serial, they do not do parallel fetches on same site,
     //   whereas multiple crawlers can run concurrently.
-    //   The single threaded nature of the crawler can be seen when running
+    //   The single threaded nature of the org.ferrit.core.crawler can be seen when running
     //   just one crawl job - the load is bound to one CPU.
     // * URL seen queue is larger
     

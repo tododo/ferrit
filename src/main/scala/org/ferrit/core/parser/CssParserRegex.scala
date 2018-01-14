@@ -1,12 +1,11 @@
 package org.ferrit.core.parser
 
-import scala.collection.immutable.Range
-import scala.util.matching.Regex.Match
-import org.ferrit.core.util.{MediaType, TagUtil, Stopwatch}
 import org.ferrit.core.http.Response
-import org.ferrit.core.util.TagUtil.{CssTagEquiv, CssUrl, SlashStarComment}
 import org.ferrit.core.uri.CrawlUri
+import org.ferrit.core.util.{MediaType, Stopwatch}
 
+import scala.collection.immutable.Range
+import org.ferrit.core.util.TagUtil._
 
 /**
  * A CSS link extractor using regular expressions to find links inside 

@@ -1,10 +1,8 @@
 package org.ferrit.core.crawler
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FlatSpec, Matchers}
 
-
-class TestDefaultStopRule extends FlatSpec with ShouldMatchers {
+class TestDefaultStopRule extends FlatSpec with Matchers {
   
   val stopRule = new DefaultStopRule
 

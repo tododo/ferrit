@@ -1,8 +1,9 @@
 package org.ferrit.core.filter
 
-import scala.util.matching.Regex
+import org.ferrit.core.filter.PriorityRejectUriFilter._
 import org.ferrit.core.uri.CrawlUri
-import PriorityRejectUriFilter._
+
+import scala.util.matching.Regex
 
 
 /**

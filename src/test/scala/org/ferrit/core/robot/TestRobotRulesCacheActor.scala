@@ -2,19 +2,18 @@ package org.ferrit.core.robot
 
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
-import akka.testkit.{TestKit, ImplicitSender}
+import akka.testkit.{ImplicitSender, TestKit}
 import akka.util.Timeout
+import org.ferrit.core.test.FakeHttpClient._
+import org.ferrit.core.test.{ParrotHttpClient, PartResponse}
+import org.ferrit.core.uri.CrawlUri
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import org.scalatest.{BeforeAndAfterAll, FlatSpec}
-import org.scalatest.matchers.ShouldMatchers
-import org.ferrit.core.http.Response
-import org.ferrit.core.test.{ParrotHttpClient, PartResponse}
-import org.ferrit.core.test.FakeHttpClient._
-import org.ferrit.core.uri.CrawlUri
 
 
-class TestRobotRulesCacheActor extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
+class TestRobotRulesCacheActor extends FlatSpec with Matchers with BeforeAndAfterAll {
 
   import RobotRulesCacheActor._
 
@@ -38,7 +37,7 @@ class TestRobotRulesCacheActor extends FlatSpec with ShouldMatchers with BeforeA
   )
 
 
-  override def afterAll() = system.shutdown()
+  override def afterAll() = system.terminate()
 
   class RulesTest extends TestKit(system) with ImplicitSender {
 

@@ -1,11 +1,13 @@
 package org.ferrit.core.robot
 
-import org.ferrit.core.http.{HttpClient, Get, Response}
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+
+import org.ferrit.core.http.{Get, HttpClient}
 import org.ferrit.core.uri.{CrawlUri, UriReader}
-import org.joda.time.DateTime
-import scala.concurrent.{Await, Future}
+
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext
 
 /**
  * An implementation of RobotRulesCache that perfectly illustrates why you 
@@ -23,7 +25,7 @@ import scala.concurrent.ExecutionContext
  *       just to the user agent in questions. This means that directives for
  *       common agents like Googlebot and Yahoo are not stored. The tradeoff is
  *       that the robots txt file has to be re-fetched for each user agent
- *       used by the crawler, which in practice many never be more than once.</li>
+ *       used by the org.ferrit.core.crawler, which in practice many never be more than once.</li>
  *   <li>A cache entry for a particular website and user agent combination expires
  *       after a pre-defined period after which time robots txt would be fetched again.
  *       Even the cached record of a lack of robots txt file is evicted.</li>
@@ -68,10 +70,10 @@ import scala.concurrent.ExecutionContext
 class DefaultRobotRulesCache(val httpClient: HttpClient)(implicit val execContext: ExecutionContext) extends RobotRulesCache {
   
   private [robot] case class Cache(var cache: Map[String, SiteEntry])
-  private [robot] case class SiteEntry(rules: RobotRules, expires: DateTime)
+  private [robot] case class SiteEntry(rules: RobotRules, expires: LocalDateTime)
   private [robot] var caches: Map[String, Cache] = Map.empty
 
-  def entryExpires: Long = 1.days.toMillis
+  def entryExpires: Long = 1000 * 3600 * 24
   def rulesParser = new RobotRulesParser
 
 
@@ -107,7 +109,7 @@ class DefaultRobotRulesCache(val httpClient: HttpClient)(implicit val execContex
           c
       }
 
-    val now = new DateTime
+    val now = LocalDateTime.now
 
     // Evict expired entry
     uaCache.cache.get(key) match {
@@ -122,7 +124,7 @@ class DefaultRobotRulesCache(val httpClient: HttpClient)(implicit val execContex
         for {
           robRules <- fetchParseRules(userAgent, key) // Not cached so go fetch
         } yield {
-          val expires = new DateTime().plus(entryExpires.toInt)
+          val expires = LocalDateTime.now.plusSeconds(entryExpires/1000)
           val se = SiteEntry(robRules, expires)
           uaCache.cache += (key -> se)
           se       

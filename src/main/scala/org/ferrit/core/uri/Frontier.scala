@@ -14,7 +14,7 @@ trait Frontier {
    * Add a fetch job to the frontier.
    */
   def enqueue(f: FetchJob): Int
-  
+
   /**
    * Remove a job from the frontier if there are any left.
    */

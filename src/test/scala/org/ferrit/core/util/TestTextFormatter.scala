@@ -1,11 +1,10 @@
 package org.ferrit.core.util
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
 import org.ferrit.core.util.TextFormatter._
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestTextFormatter extends FlatSpec with ShouldMatchers {
+class TestTextFormatter extends FlatSpec with Matchers {
   
   behavior of "TextFormatter" 
 

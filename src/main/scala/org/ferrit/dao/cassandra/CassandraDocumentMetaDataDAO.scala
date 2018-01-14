@@ -1,12 +1,9 @@
 package org.ferrit.dao.cassandra
 
-import java.util.Date
-import org.joda.time.DateTime
-import com.datastax.driver.core.{Session, PreparedStatement}
-import com.datastax.driver.core.{BoundStatement, ResultSet, Row}
+import com.datastax.driver.core._
+import org.ferrit.core.model.DocumentMetaData
 import org.ferrit.dao.DocumentMetaDataDAO
 import org.ferrit.dao.cassandra.CassandraDAO._
-import org.ferrit.core.model.DocumentMetaData
 
 
 class CassandraDocumentMetaDataDAO(ttl: CassandraColumnTTL)(implicit session: Session) extends DocumentMetaDataDAO {
@@ -60,7 +57,7 @@ class CassandraDocumentMetaDataDAO(ttl: CassandraColumnTTL)(implicit session: Se
       row.getString("content_type"),
       row.getInt("content_length"),
       row.getInt("depth"),
-      row.getDate("fetched"),
+      row.getTimestamp("fetched"),
       row.getString("response_status")
     )   
   }
@@ -73,7 +70,7 @@ class CassandraDocumentMetaDataDAO(ttl: CassandraColumnTTL)(implicit session: Se
       .setString("content_type", a.contentType)
       .setInt("content_length", a.contentLength)
       .setInt("depth", a.depth)
-      .setDate("fetched", a.fetched)
+      .setTimestamp("fetched", a.fetched)
       .setString("response_status", a.responseStatus)
   }
 

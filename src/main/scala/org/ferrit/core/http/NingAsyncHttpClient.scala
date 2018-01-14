@@ -1,19 +1,15 @@
 package org.ferrit.core.http
 
-import scala.concurrent.Future
-import com.ning.http.client.{AsyncHttpClient, AsyncHandler}
-import com.ning.http.client.AsyncCompletionHandler
-import com.ning.http.client.AsyncHandler._
-import org.ferrit.core.http.{Response => OurResponse}
-import com.ning.http.client.{Response => NingResponse}
-import com.ning.http.client._
-import scala.concurrent.Promise
-import java.net.URI
-import java.util.concurrent.{Future => JFuture}
-import java.util.concurrent.Executor
 import java.io.ByteArrayOutputStream
-import java.util.{Map => JMap, List => JList, Set => JSet}
+import java.util.concurrent.{Future => JFuture}
+import java.util.{List => JList, Map => JMap, Set => JSet}
+
+import com.ning.http.client.AsyncHandler.STATE
+import com.ning.http.client.{AsyncHandler, AsyncHttpClient, AsyncHttpClientConfig, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Response => NingResponse}
+import org.ferrit.core.http.{Response => OurResponse}
+
 import scala.collection.JavaConverters._
+import scala.concurrent.{Future, Promise}
 
 /**
  * HttpClient implementation that uses the Ning AsyncHttpClient.
@@ -22,10 +18,10 @@ class NingAsyncHttpClient(config: HttpClientConfig) extends HttpClient {
 
   private val client = {
     val conf = new AsyncHttpClientConfig.Builder()
-      .setAllowPoolingConnection(config.useConnectionPooling)
-      .setRequestTimeoutInMs(config.requestTimeout)
-      .setFollowRedirects(config.followRedirects)
-      .setCompressionEnabled(config.useCompression)
+      .setAllowPoolingConnections(config.useConnectionPooling)
+      .setRequestTimeout(config.requestTimeout)
+      .setFollowRedirect(config.followRedirects)
+      .setCompressionEnforced(config.useCompression)
       .build()
     new AsyncHttpClient(conf)
   }

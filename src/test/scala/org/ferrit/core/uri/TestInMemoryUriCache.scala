@@ -1,10 +1,9 @@
 package org.ferrit.core.uri
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestInMemoryUriCache extends FlatSpec with ShouldMatchers {
+class TestInMemoryUriCache extends FlatSpec with Matchers {
   
   behavior of "InMemoryUriCache"
 
@@ -16,7 +15,7 @@ class TestInMemoryUriCache extends FlatSpec with ShouldMatchers {
    */
   it should "not store duplicate normalized URIs" in {
     
-    val cache:UriCache = new InMemoryUriCache
+    val cache:UriCache = InMemoryUriCache("123")
     val maxSize = 10000
 
     (1 to maxSize).foreach(num => {

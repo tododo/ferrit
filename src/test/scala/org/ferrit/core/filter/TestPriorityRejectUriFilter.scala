@@ -1,11 +1,10 @@
 package org.ferrit.core.filter
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
 import org.ferrit.core.filter.PriorityRejectUriFilter._
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestPriorityRejectUriFilter extends FlatSpec with ShouldMatchers {
+class TestPriorityRejectUriFilter extends FlatSpec with Matchers {
 
   import UriFilter.implicitConvertStringToCrawlUri
 

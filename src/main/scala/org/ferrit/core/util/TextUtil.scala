@@ -1,7 +1,5 @@
 package org.ferrit.core.util
 
-import scala.util.matching.Regex
-
 
 object TextUtil {
 

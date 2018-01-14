@@ -1,11 +1,10 @@
 package org.ferrit.core.filter
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
 import org.ferrit.core.filter.FirstMatchUriFilter._
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class TestFirstMatchUriFilter extends FlatSpec with ShouldMatchers {
+class TestFirstMatchUriFilter extends FlatSpec with Matchers {
 
   import UriFilter.implicitConvertStringToCrawlUri
 

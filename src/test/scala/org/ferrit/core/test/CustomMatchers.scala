@@ -1,9 +1,9 @@
 package org.ferrit.core.test
 
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 
-trait CustomMatchers extends ShouldMatchers {
+trait CustomMatchers extends Matchers {
  
   /**
    * Augments ScalaTest intercept[Throwable]

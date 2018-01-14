@@ -1,6 +1,6 @@
 package org.ferrit.core.model
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 case class DocumentMetaData(
   crawlerId: String,
@@ -9,6 +9,6 @@ case class DocumentMetaData(
   contentType: String,
   contentLength: Int,
   depth: Int,
-  fetched: DateTime,
+  fetched: LocalDateTime,
   responseStatus: String
 )

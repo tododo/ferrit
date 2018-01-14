@@ -1,12 +1,13 @@
 package org.ferrit.dao
 
+import java.time.LocalDateTime
+
 import scala.util.Random
-import org.joda.time.DateTime
-import org.scalatest.matchers.ShouldMatchers
 import org.ferrit.core.model.FetchLogEntry
+import org.scalatest.Matchers
 
 
-class ITestFetchLogEntryDAO extends AbstractDAOTest with ShouldMatchers {
+class ITestFetchLogEntryDAO extends AbstractDAOTest with Matchers {
   
   val fleDao = daoFactory.fetchLogEntryDao
 
@@ -19,8 +20,8 @@ class ITestFetchLogEntryDAO extends AbstractDAOTest with ShouldMatchers {
   
     val fle = FetchLogEntry(
       crawlerId, 
-      jobId, 
-      new DateTime, 
+      jobId,
+      LocalDateTime.now(),
       "http://site.net",
       0,
       200,

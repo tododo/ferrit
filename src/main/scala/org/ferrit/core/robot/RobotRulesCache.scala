@@ -1,7 +1,8 @@
 package org.ferrit.core.robot
 
+import org.ferrit.core.uri.UriReader
+
 import scala.concurrent.Future
-import org.ferrit.core.uri.{CrawlUri, UriReader}
 
 
 /**

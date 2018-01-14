@@ -1,18 +1,17 @@
 package org.ferrit.core.robot
 
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
-import scala.concurrent.{Await, Future}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-import org.ferrit.core.uri.{CrawlUri, UriReader}
-import org.ferrit.core.http.{HttpClient, Request, Response}
-import org.ferrit.core.http.{DefaultResponse, Stats, NingAsyncHttpClient}
+import org.ferrit.core.http._
 import org.ferrit.core.test.FakeHttpClient.TextResponse
 import org.ferrit.core.test.ParrotHttpClient
+import org.ferrit.core.uri.CrawlUri
+import org.scalatest.{FlatSpec, Matchers}
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 
-class TestDefaultRobotRulesCache extends FlatSpec with ShouldMatchers {
+class TestDefaultRobotRulesCache extends FlatSpec with Matchers {
   
   behavior of "RobotRulesCache"
 
@@ -137,7 +136,7 @@ class TestDefaultRobotRulesCache extends FlatSpec with ShouldMatchers {
 
   it should "only refetch when cache entries expired" in {
 
-    val expiresMs = 25
+    val expiresMs = 1000 //1000 ms
     var refetches = 0 // counts number of cache invalidations and refetches
   
     val client = new MockClient {

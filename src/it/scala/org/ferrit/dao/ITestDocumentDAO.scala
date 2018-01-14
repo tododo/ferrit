@@ -1,12 +1,13 @@
 package org.ferrit.dao
 
 import java.nio.ByteBuffer
+
 import org.ferrit.core.model.Document
-import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{FlatSpec, Matchers}
 
 
-class ITestDocumentDAO extends AbstractDAOTest with ShouldMatchers {
+
+class ITestDocumentDAO extends AbstractDAOTest with Matchers {
   
   behavior of "DocumentDAO"  
 

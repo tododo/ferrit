@@ -1,6 +1,5 @@
 package org.ferrit.core.crawler
 
-import org.joda.time.DateTime
 import org.ferrit.core.uri.{CrawlUri, FetchJob}
 import org.ferrit.core.model.CrawlJob
 

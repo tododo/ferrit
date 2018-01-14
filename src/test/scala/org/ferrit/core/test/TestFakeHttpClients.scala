@@ -1,17 +1,17 @@
 package org.ferrit.core.test
 
-import org.scalatest.{FlatSpec, BeforeAndAfterAll}
-import org.scalatest.matchers.ShouldMatchers
-import scala.concurrent.duration._
-import scala.concurrent.{Await,ExecutionContext}
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.ferrit.core.http.{Get, Response}
 import org.ferrit.core.uri.CrawlUri
-import org.ferrit.core.http.{HttpClient, Request, Response, Get}
+import org.scalatest.{FlatSpec, Matchers}
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 /**
  * These tests test the testing tools themselves.
  */
-class TestFakeHttpClients extends FlatSpec with ShouldMatchers {
+class TestFakeHttpClients extends FlatSpec with Matchers {
   
   behavior of classOf[LinkedListHttpClient].getSimpleName
 
@@ -23,7 +23,7 @@ class TestFakeHttpClients extends FlatSpec with ShouldMatchers {
 
     def request(uri: String):Response = {
       val r = Get("*", CrawlUri(uri), Map.empty)
-      Await.result(client.request(r), 20.milliseconds)
+      Await.result(client.request(r), 100.milliseconds)
     }
 
     // The page numbering is zero based.

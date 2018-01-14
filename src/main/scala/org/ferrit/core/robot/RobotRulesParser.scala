@@ -1,7 +1,7 @@
 package org.ferrit.core.robot
 
-import scala.util.matching.Regex
 import scala.collection.mutable.ListBuffer
+import scala.util.matching.Regex
 
 /**
  * Parses the directives in a robots.txt file applying to the given 

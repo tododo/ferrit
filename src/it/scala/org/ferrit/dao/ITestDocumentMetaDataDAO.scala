@@ -1,13 +1,15 @@
 package org.ferrit.dao
 
+import java.time.LocalDateTime
+
 import org.joda.time.DateTime
-import org.scalatest.matchers.ShouldMatchers
-import com.datastax.driver.core.{Cluster, Session, PreparedStatement}
+import com.datastax.driver.core.{Cluster, PreparedStatement, Session}
 import com.datastax.driver.core.{BoundStatement, ResultSet, Row}
 import org.ferrit.core.model.DocumentMetaData
+import org.scalatest.Matchers
 
 
-class ITestDocumentMetaDataDAO extends AbstractDAOTest with ShouldMatchers {
+class ITestDocumentMetaDataDAO extends AbstractDAOTest with Matchers {
   
   behavior of "DocumentMetaDataDAO"
 
@@ -26,7 +28,7 @@ class ITestDocumentMetaDataDAO extends AbstractDAOTest with ShouldMatchers {
       "text/html; charset=UTF-8",
       234234,
       1,
-      new DateTime,
+      LocalDateTime.now,
       "200"
     )
 
@@ -52,7 +54,7 @@ class ITestDocumentMetaDataDAO extends AbstractDAOTest with ShouldMatchers {
         "text/html; charset=UTF-8",
         234234,
         i,
-        new DateTime,
+        LocalDateTime.now,
         "200"
       )      
     })
